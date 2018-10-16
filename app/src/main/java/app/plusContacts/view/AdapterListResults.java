@@ -3,36 +3,46 @@ package app.plusContacts.view;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import app.plusContacts.R;
+import app.plusContacts.domain.PlaceBasic;
+
+import java.util.LinkedList;
 
 public class AdapterListResults extends RecyclerView.Adapter<LineViewHolder> {
-    private String[] mDataset;
+    private LinkedList<PlaceBasic> dataset;
 
-    // Provide a suitable constructor (depends on the kind of dataset)
-    public AdapterListResults(String[] myDataset) {
-        mDataset = myDataset;
+    public AdapterListResults() {
+        this.dataset = new LinkedList<>();
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
     public LineViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new LineViewHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.result_line, parent, false));
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(LineViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        holder.placeName.setText(mDataset[position]);
-        holder.placeDescrition.setText(mDataset[position]);
+        holder.setValues(dataset.get(position));
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.length;
+        return dataset.size();
+    }
+
+    public void insertItem(PlaceBasic item) {
+        dataset.add(item);
+        notifyItemInserted(getItemCount());
+    }
+
+    public void setItems(LinkedList items) {
+        dataset = items;
+        notifyDataSetChanged();
+    }
+
+    public void clearDataSet(String item) {
+        dataset = new LinkedList<>();
+        notifyDataSetChanged();
     }
 }

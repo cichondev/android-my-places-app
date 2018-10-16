@@ -14,7 +14,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import app.plusContacts.R;
+import app.plusContacts.listener.ListenerSearch;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -22,6 +24,8 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private EditText etSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +66,11 @@ public class MainActivity extends AppCompatActivity
 
         // specify an adapter
 
-        String[] myDataset = new String[]{"Pancieri", "Bercol", "Marceli", "outro", "político", "casagrande", "demuner"};
-        mAdapter = new AdapterListResults(myDataset);
+        mAdapter = new AdapterListResults();
         mRecyclerView.setAdapter(mAdapter);
 
+        etSearch = findViewById(R.id.et_search);
+        etSearch.setOnKeyListener(new ListenerSearch());
     }
 
     @Override
@@ -123,5 +128,9 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public AdapterListResults getAdapter() {
+        return (AdapterListResults) mAdapter;
     }
 }
