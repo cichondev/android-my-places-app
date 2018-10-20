@@ -1,13 +1,5 @@
 package app.plusContacts.service;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import org.json.JSONObject;
-
 public class GooglePlacesDetails {
 
     private static final String URL_PATTERN = "https://maps.googleapis.com/maps/api/place/details/json?placeid={PLACE_ID}&fields={FIELDS}&key={KEY}";
@@ -16,7 +8,10 @@ public class GooglePlacesDetails {
     private String key;
     private String urlFilled;
 
-    public GooglePlacesDetails() {}
+    public GooglePlacesDetails(String placeID, String key) {
+        this.placeID = placeID;
+        this.key = key;
+    }
 
     public GooglePlacesDetails setPlaceID(String value) {
         placeID = value;
@@ -34,40 +29,10 @@ public class GooglePlacesDetails {
         return this;
     }
 
-    public void performRequest() {
+    public String prepareUrl() {
         urlFilled = URL_PATTERN.replace("{FIELDS}", fields);
         urlFilled = urlFilled.replace("{PLACE_ID}", placeID);
         urlFilled = urlFilled.replace("{KEY}", key);
-        // todo send http request...
-
-
-        // Criar uma classe ASyncTask...
-
-        // Colocar a lógica pra efetuar a request
-
-        // ler o resultado JSON
-
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                (Request.Method.GET, urlFilled, null, new Response.Listener<JSONObject>() {
-//
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        //mTextView.setText("Response: " + response.toString());
-//                        // todo pegar as keys necessárias aqui...
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        // TODO: Handle error
-//
-//                    }
-//                });
-//
-//        // Access the RequestQueue through your singleton class.
-//        queue.add(jsonObjectRequest);
-
+        return urlFilled;
     }
 }

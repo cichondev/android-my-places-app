@@ -8,7 +8,7 @@ import app.plusContacts.service.GooglePlacesSearch;
 
 import java.io.UnsupportedEncodingException;
 
-public class ListenerSearch implements View.OnKeyListener {
+public class OnKeySearch implements View.OnKeyListener {
 
     @Override
     public boolean onKey(View view, int i, KeyEvent keyEvent) {
@@ -28,7 +28,7 @@ public class ListenerSearch implements View.OnKeyListener {
                     .setRadius("100")                                  //todo colocar em arquivo de configuração...
                     .performRequest();
         } catch (UnsupportedEncodingException e) {
-            Log.e("ListenerSearch", e.getMessage());
+            Log.e("OnKeySearch", e.getMessage());
         }
         return true;
     }

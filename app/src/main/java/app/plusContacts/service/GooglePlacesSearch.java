@@ -90,7 +90,9 @@ public class GooglePlacesSearch {
                         } catch (JSONException e) {
                             Log.e("GooglePlacesSearch", e.getMessage());
                         }
-                        ((MainActivity)context).getAdapter().setItems(items);
+
+                        ((MainActivity)context).getAdapter().setItems(items); //TODO RESOLVER ESSE ACOPLAMENTO (uma sugestão seria colocar dentro da activity)
+
                         progress.dismiss();
                     }
                 }, new Response.ErrorListener() {

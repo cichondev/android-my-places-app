@@ -3,6 +3,7 @@ package app.plusContacts.view;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -16,7 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import app.plusContacts.R;
-import app.plusContacts.listener.ListenerSearch;
+import app.plusContacts.listener.OnClickPlaceBasic;
+import app.plusContacts.listener.OnKeySearch;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -70,7 +72,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setAdapter(mAdapter);
 
         etSearch = findViewById(R.id.et_search);
-        etSearch.setOnKeyListener(new ListenerSearch());
+        etSearch.setOnKeyListener(new OnKeySearch());
     }
 
     @Override
