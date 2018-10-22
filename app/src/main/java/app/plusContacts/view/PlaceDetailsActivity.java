@@ -1,16 +1,21 @@
 package app.plusContacts.view;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DialogTitle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import app.plusContacts.R;
 import app.plusContacts.service.GooglePlacesDetails;
 import com.android.volley.Request;
@@ -21,6 +26,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.security.Principal;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
     private TextView placeName;
@@ -54,10 +61,29 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         fabCall.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("MissingPermission")
             @Override
-            public void onClick(View view) {
-                String phoneNumber = placePhone1.getText().toString().replaceAll("[()\\-\\s]", "");
-                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
-                startActivity(intent);
+            public void onClick(final View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+                alert.setTitle("Confirme o telefone");
+                alert.setMessage("Você pode alterar o número se for preciso.");
+                final View layoutAlert = getLayoutInflater().inflate(R.layout.alert_review_phone, null);
+                final TextView phoneNumberView = layoutAlert.findViewById(R.id.phone_number);
+                phoneNumberView.setText(placePhone1.getText());
+                alert.setView(layoutAlert);
+
+                alert.setPositiveButton("Ligar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String phoneNumber = phoneNumberView.getText().toString().replaceAll("[()\\-\\s]", "");
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
+                        startActivity(intent);
+                    }
+                });
+
+                alert.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText( view.getContext(), "Ligação cancelada!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                alert.show();
             }
         });
     }
