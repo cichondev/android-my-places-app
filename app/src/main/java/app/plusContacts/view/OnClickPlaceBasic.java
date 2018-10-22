@@ -1,4 +1,4 @@
-package app.plusContacts.listener;
+package app.plusContacts.view;
 
 import android.app.Activity;
 import android.content.Intent;

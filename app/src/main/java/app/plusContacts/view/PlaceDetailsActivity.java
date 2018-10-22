@@ -26,7 +26,6 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private TextView placeName;
     private TextView placeAddress;
     private TextView placePhone1;
-    private TextView placePhone2;
     private ProgressDialog progress;
     private FloatingActionButton fabCall;
 
@@ -34,14 +33,12 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_details);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 
         fabCall = findViewById(R.id.fab);
         placeName = findViewById(R.id.details_name);
         placeAddress = findViewById(R.id.details_address);
         placePhone1 = findViewById(R.id.details_phone1);
-        placePhone2 = findViewById(R.id.details_phone2);
 
         registerEvents();
         Bundle data = getIntent().getExtras();
@@ -58,8 +55,8 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             @SuppressLint("MissingPermission")
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:" + placePhone1));
+                String phoneNumber = placePhone1.getText().toString().replaceAll("[()\\-\\s]", "");
+                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
                 startActivity(intent);
             }
         });
@@ -81,7 +78,6 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                             placeName.setText(result.getString("name"));
                             placeAddress.setText(result.getString("formatted_address"));
                             placePhone1.setText(result.getString("formatted_phone_number"));
-                            placePhone2.setText("");
                         } catch (JSONException e) {
                             Snackbar.make(placeName, "Erro ao carregar as informações!", Snackbar.LENGTH_LONG)
                                     .show();
@@ -107,6 +103,4 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 true
         );
     }
-
-
 }

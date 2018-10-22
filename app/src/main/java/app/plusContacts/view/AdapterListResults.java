@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import app.plusContacts.R;
 import app.plusContacts.domain.PlaceBasic;
-import app.plusContacts.listener.OnClickPlaceBasic;
 
 import java.util.LinkedList;
 

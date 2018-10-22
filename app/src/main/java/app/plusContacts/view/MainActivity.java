@@ -1,11 +1,12 @@
 package app.plusContacts.view;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,62 +18,64 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import app.plusContacts.R;
-import app.plusContacts.listener.OnClickPlaceBasic;
-import app.plusContacts.listener.OnKeySearch;
+import app.plusContacts.domain.PlaceBasic;
+import app.plusContacts.service.GooglePlacesSearch;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.LinkedList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnKeyListener {
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private AdapterListResults mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
     private EditText etSearch;
+    private ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.list_results);
+        etSearch = findViewById(R.id.et_search);
+
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                System.out.println("Clicked on fab button!");
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Prepare List Elements (RecyclerView)
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.list_results);
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        // specify an adapter
-
         mAdapter = new AdapterListResults();
         mRecyclerView.setAdapter(mAdapter);
 
-        etSearch = findViewById(R.id.et_search);
-        etSearch.setOnKeyListener(new OnKeySearch());
+        etSearch.setOnKeyListener(this);
     }
 
     @Override
@@ -132,7 +135,77 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public AdapterListResults getAdapter() {
-        return (AdapterListResults) mAdapter;
+    @Override
+    public boolean onKey(View view, int i, KeyEvent keyEvent) {
+        EditText etSearch = (EditText) view;
+        String searchValue = etSearch.getText().toString();
+
+        if (keyEvent.getKeyCode() != KeyEvent.KEYCODE_ENTER) {
+            return false;
+        }
+        getPlaces(searchValue);
+        return true;
+    }
+
+    /**
+     * Perform request of Places for searchValue typed by user.
+     *
+     * @param searchValue
+     */
+    public void getPlaces(String searchValue) {
+        startLoading();
+        String key = "AIzaSyA72IYrfMQxUZiOxupbVzwPuhAdJrS6y9A"; //todo colocar em arquivo de configuração...
+        String latitude = "-19.50737292516664";
+        String longitude = "-40.6131935119629"; //todo  pegar do GPS
+        String raio = "100";
+
+        String urlApi = new GooglePlacesSearch()
+                .setKey(key)
+                .setLocation(latitude, longitude)
+                .setQuery(searchValue)
+                .setRadius(raio)
+                .prepareUrl();
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, urlApi, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        LinkedList<PlaceBasic> items = new LinkedList<>();
+                        try {
+                            JSONArray results = response.getJSONArray("results");
+
+                            for (int i=0; i < results.length(); i++) {
+                                String name = ((JSONObject)results.get(i)).getString("name");
+                                String address = ((JSONObject)results.get(i)).getString("formatted_address");
+                                String placeID = ((JSONObject)results.get(i)).getString("place_id");
+                                items.add(new PlaceBasic(placeID, name, address));
+                            }
+                        } catch (JSONException e) {
+                            Log.e("GooglePlacesSearch", e.getMessage());
+                        }
+
+                        mAdapter.setItems(items);
+                        progress.dismiss();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progress.dismiss();
+                        Log.e("GooglePlacesSearch", error.getMessage());
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
+    }
+
+    protected void startLoading() {
+        progress = ProgressDialog.show(
+                this,
+                "Aguarde...",
+                "Buscando locais...",
+                true,
+                true
+        );
     }
 }
