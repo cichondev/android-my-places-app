@@ -22,9 +22,9 @@ public class GooglePlacesSearch {
         return this;
     }
 
-    public GooglePlacesSearch setLocation(String latitude, String longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public GooglePlacesSearch setLocation(double latitude, double longitude) {
+        this.latitude = String.valueOf(latitude);
+        this.longitude = String.valueOf(longitude);
         return this;
     }
 

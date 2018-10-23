@@ -1,8 +1,6 @@
 package app.plusContacts.view;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,13 +9,13 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DialogTitle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import app.plusContacts.R;
 import app.plusContacts.service.GooglePlacesDetails;
+import app.plusContacts.support.Config;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -26,8 +24,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.security.Principal;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
     private TextView placeName;
@@ -59,7 +55,6 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
     private void registerEvents() {
         fabCall.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("MissingPermission")
             @Override
             public void onClick(final View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
@@ -74,6 +69,8 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String phoneNumber = phoneNumberView.getText().toString().replaceAll("[()\\-\\s]", "");
                         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
+
+                        //TODO adicionar código pra verificar se user deu permissão.
                         startActivity(intent);
                     }
                 });
@@ -89,8 +86,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     }
 
     private void getPlaceDetails(String placeID) {
-        String key = "AIzaSyA72IYrfMQxUZiOxupbVzwPuhAdJrS6y9A";
-        String urlApi = new GooglePlacesDetails(placeID, key).prepareUrl();
+        String urlApi = new GooglePlacesDetails(placeID, Config.get("maps_key", this)).prepareUrl();
 
         RequestQueue queue = Volley.newRequestQueue(this);
 

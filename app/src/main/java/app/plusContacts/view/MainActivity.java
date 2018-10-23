@@ -1,7 +1,14 @@
 package app.plusContacts.view;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,9 +24,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 import app.plusContacts.R;
 import app.plusContacts.domain.PlaceBasic;
 import app.plusContacts.service.GooglePlacesSearch;
+import app.plusContacts.support.Config;
+import app.plusContacts.support.LocationGps;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -76,6 +86,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setAdapter(mAdapter);
 
         etSearch.setOnKeyListener(this);
+        LocationGps.getInstance().identify(this);
     }
 
     @Override
@@ -135,6 +146,9 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * onKeyPress for searchValue input;
+     */
     @Override
     public boolean onKey(View view, int i, KeyEvent keyEvent) {
         EditText etSearch = (EditText) view;
@@ -154,16 +168,12 @@ public class MainActivity extends AppCompatActivity
      */
     public void getPlaces(String searchValue) {
         startLoading();
-        String key = "AIzaSyA72IYrfMQxUZiOxupbVzwPuhAdJrS6y9A"; //todo colocar em arquivo de configuração...
-        String latitude = "-19.50737292516664";
-        String longitude = "-40.6131935119629"; //todo  pegar do GPS
-        String raio = "100";
 
         String urlApi = new GooglePlacesSearch()
-                .setKey(key)
-                .setLocation(latitude, longitude)
+                .setKey(Config.get("maps_key", this))
+                .setLocation(LocationGps.getInstance().getLatitude(), LocationGps.getInstance().getLongitude())
                 .setQuery(searchValue)
-                .setRadius(raio)
+                .setRadius(Config.get("raio", this))
                 .prepareUrl();
 
         RequestQueue queue = Volley.newRequestQueue(this);
