@@ -1,0 +1,6 @@
+# Follow the steps below:
+# 1 - Change the name this file to "config.properties";
+# 2 - Change maps_key below for your key (you can create at https://console.cloud.google.com/apis/credentials);
+
+maps_key=YOUR_KEY_HERE
+raio=100
