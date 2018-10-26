@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     private AdapterListResults mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private EditText etSearch;
-    private ProgressDialog progress;
+    private Toast toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setAdapter(mAdapter);
 
         etSearch.setOnKeyListener(this);
-        LocationGps.getInstance().identify(this);
     }
 
     @Override
@@ -167,7 +166,14 @@ public class MainActivity extends AppCompatActivity
      * @param searchValue
      */
     public void getPlaces(String searchValue) {
-        startLoading();
+        if (!LocationGps.getInstance().isEnableGps(this)) {
+            LocationGps.getInstance().enableGPS(this);
+            return;
+        }
+
+        if (!LocationGps.getInstance().hasCoordinates()) {
+            LocationGps.getInstance().identify(this, 5);
+        }
 
         String urlApi = new GooglePlacesSearch()
                 .setKey(Config.get("maps_key", this))
@@ -191,31 +197,36 @@ public class MainActivity extends AppCompatActivity
                                 String placeID = ((JSONObject)results.get(i)).getString("place_id");
                                 items.add(new PlaceBasic(placeID, name, address));
                             }
+                            mAdapter.setItems(items);
+                            if (items.size() == 0)
+                                showToast("Nada encontrado! :(");
+                            else
+                                showToast("Pronto! :)");
+
                         } catch (JSONException e) {
                             Log.e("GooglePlacesSearch", e.getMessage());
+                            showToast("Houve um erro: " + e.getMessage());
                         }
-
-                        mAdapter.setItems(items);
-                        progress.dismiss();
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progress.dismiss();
                         Log.e("GooglePlacesSearch", error.getMessage());
+                        showToast("Houve um erro: " + error.getMessage());
                     }
                 });
 
         queue.add(jsonObjectRequest);
+        showToast("Procurando... :)");
     }
 
-    protected void startLoading() {
-        progress = ProgressDialog.show(
+    protected void showToast(String message) {
+        if (toast != null)
+            toast.cancel();
+        toast = Toast.makeText(
                 this,
-                "Aguarde...",
-                "Buscando locais...",
-                true,
-                true
-        );
+                message,
+                Toast.LENGTH_SHORT);
+        toast.show();
     }
 }
