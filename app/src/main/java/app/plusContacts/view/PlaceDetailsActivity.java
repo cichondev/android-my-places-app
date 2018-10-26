@@ -67,7 +67,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
                 alert.setPositiveButton("Ligar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        String phoneNumber = phoneNumberView.getText().toString().replaceAll("[()\\-\\s]", "");
+                        String phoneNumber = "0" + phoneNumberView.getText().toString().replaceAll("[()\\-\\s]", "");
                         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
 
                         //TODO adicionar código pra verificar se user deu permissão.
